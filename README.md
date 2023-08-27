@@ -14,7 +14,7 @@ Final results should be written to Mysql
 ## Code Explanation
 analytics.py contains five functions, which do the following:
 1. calculate_max_temperature: calculates max temperature for each device per hour
-2. compute_dataPoints: calculates data points for each device per hour
+2. compute_datapoints: calculates data points for each device per hour
 3. compute_distance: Find the total distance covered for each device per hour
 4. data_aggregation: Main logic, which calls all three above functions and aggregate results
 5. insert_results: inserts aggregated results into Mysql database in table analytics
