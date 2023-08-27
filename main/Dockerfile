@@ -4,4 +4,4 @@ RUN apt-get update \
     && pip install psycopg2 sqlalchemy faker
 WORKDIR /app
 COPY . .
-CMD [ "python", "./main.py" ]
+CMD [ "python", "./analytics.py" ]
