@@ -5,3 +5,4 @@ RUN apt-get update \
 WORKDIR /app
 COPY . .
 CMD [ "python", "./main.py" ]
+CMD [ "python", "./analytics.py" ]
