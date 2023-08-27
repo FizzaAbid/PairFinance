@@ -15,7 +15,7 @@ It will launch the analytics.py script.
 1. cd into the folder 'Data Engineer Task' where docker-compose.yml is present
 2. Open docker desktop and run 'docker compose up'
 3. Connect to Data Grip/Dbeaver or any database explorer tool
-4. Connect to Postgres and SQL database with credentials (username: nonroot, password: nonroot, port: 3020 for Mysql) and for Postgres (username: postgres, password:password, port: 5420)
+4. Connect to Postgres and SQL database with credentials (username: **nonroot**, password: **nonroot**, port: **3020** for Mysql) and for Postgres (username: **postgres**, password:**password**, port: **5020**)
 5. Query the tables devices, analytics table will be populated after an hour because of the sleep condition in the code.
 
 ## Code Explanation
