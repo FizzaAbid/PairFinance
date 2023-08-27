@@ -12,8 +12,6 @@ print('ETL Starting...')
 
 while True:
     try:
-        #environ['POSTGRESQL_CS']='postgresql+psycopg2://postgres:password@localhost:5020/main'
-        #environ['MYSQL_CS']='mysql+pymysql://nonroot:nonroot@localhost:3020/analytics?charset=utf8'
         psql_engine = create_engine(environ["POSTGRESQL_CS"], pool_pre_ping=True, pool_size=10, future=True)
         mysql_engine = create_engine(environ["MYSQL_CS"], pool_pre_ping=True, pool_size=10,future=True)
         psql_connection = psql_engine.connect()
