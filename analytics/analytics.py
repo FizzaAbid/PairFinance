@@ -115,7 +115,6 @@ def data_aggregation(deviceResults, LastExceutionTime,startCurrentHour): #aggreg
 
 
 def insert_results(max_temperatures, dataPoints, distances):
-    print("dataPoints",dataPoints)
     key_device_id = "device_id"
     key_max_temperature = "max_temperature"
     list_device_id = []
@@ -168,4 +167,4 @@ while(1):
     currentTime_utc = datetime.now(timezone.utc)
     next_hour = currentTime_utc.replace(hour=currentTime_utc.hour+1, minute=0, second=0, microsecond=0)
     sleep_duration = (next_hour - currentTime_utc).seconds
-    sleep(sleep_duration) #wait until next hour
+    sleep(sleep_duration) #wait until next hour, comment this to reflect data in db
