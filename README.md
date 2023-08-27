@@ -23,8 +23,8 @@ It will launch the analytics.py script.
 
 ## Code Explanation
 analytics.py contains five functions, which do the following:
-1. 
-2.
-3.
-4.
-5.
+1. calculate_max_temperature: calculates max temperature for each device per hour
+2. compute_dataPoints: calculates data points for each device per hour
+3. compute_distance: Find the total distance covered for each device per hour
+4. data_aggregation: Main logic, which call all three above functions and aggregate results
+5. insertAggregatedResults: inserts aggregated results into Mysql database in table analytics
