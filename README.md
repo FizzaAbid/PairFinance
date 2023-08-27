@@ -1,10 +1,7 @@
-###Pair Finance Assessment
-
 ## Pair Finance Assessment Details
 1. Find max temperature for each device per hour
 2. Find data points for each device per hour
 3. Find the total distance covered for each device per hour
-
 Final results should be written to Mysql
 
 ## Running the docker
@@ -26,9 +23,10 @@ analytics.py contains five functions, which do the following:
 1. calculate_max_temperature: calculates max temperature for each device per hour
 2. compute_dataPoints: calculates data points for each device per hour
 3. compute_distance: Find the total distance covered for each device per hour
-4. data_aggregation: Main logic, which call all three above functions and aggregate results
+4. data_aggregation: Main logic, which calls all three above functions and aggregate results
 5. insertAggregatedResults: inserts aggregated results into Mysql database in table analytics
 
 
 ## Alternative Approaches
 1. Nested dictionaries can be used for calculating data points and max temperature instead of SQL
+2. Pandas or any different library, such as pyspark could have been used for Big Data Processing to run the program on multiple cores.
