@@ -17,7 +17,7 @@ analytics.py contains five functions, which do the following:
 2. compute_dataPoints: calculates data points for each device per hour
 3. compute_distance: Find the total distance covered for each device per hour
 4. data_aggregation: Main logic, which calls all three above functions and aggregate results
-5. insertAggregatedResults: inserts aggregated results into Mysql database in table analytics
+5. insert_results: inserts aggregated results into Mysql database in table analytics
 
 ## Results
 <img width="1022" alt="Result_screenshot_1" src="https://github.com/FizzaAbid/PairFinance/assets/31180223/450c7bec-898d-454c-b8c9-584b8735c827">
