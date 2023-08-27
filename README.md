@@ -4,13 +4,6 @@
 3. Find the total distance covered for each device per hour
 Final results should be written to Mysql
 
-## Running the docker
-
-To get started run ``` docker-compose up ``` in root directory.
-It will create the PostgresSQL database and start generating the data.
-It will create an empty MySQL database.
-It will launch the analytics.py script. 
-
 ## How to Run the Project?
 1. cd into the folder 'Data Engineer Task' where docker-compose.yml is present
 2. Open docker desktop and run 'docker compose up'
