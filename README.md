@@ -33,4 +33,4 @@ analytics.py contains five functions, which do the following:
 1. Test cases can be added by using library pytest
 2. SQL based built in functions can be utilized
 3. Since the data is increasing rapidly, this can be done on pyspark to process data on multiple cores
-4. Logging can be done within this code along with exceptional handling.
+4. Logging can be done within this code and add exceptions where indexing is being done especially
