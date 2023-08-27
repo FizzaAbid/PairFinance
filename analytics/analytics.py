@@ -59,7 +59,7 @@ def calculate_max_temperature(LastExceutionTime,startCurrentHour): #alternative 
     results = psql_connection.execute(max_temp_stmt,dict(processed_time=LastExceutionTime, hour_start=startCurrentHour))
     return results
 
-def compute_dataPoints(LastExceutionTime):
+def compute_datapoints(LastExceutionTime):
     psql_metadata.reflect(bind=psql_engine, only=['devices'])
     dataPoints_stmt = text(
         "SELECT  distinct device_id, count(*) as dataPoints,"
@@ -96,7 +96,7 @@ def data_aggregation(deviceResults, LastExceutionTime,startCurrentHour): #aggreg
     previousLocation=None
 
     maxTemp=calculate_max_temperature(LastExceutionTime,startCurrentHour) #Calculating max temp of each device per hour
-    datapoint=compute_dataPoints(LastExceutionTime) #calculating data points of each device per hour
+    datapoint=compute_datapoints(LastExceutionTime) #calculating data points of each device per hour
 
     for row in maxTemp.fetchall():
         maxTemperatures.append(row._asdict())
