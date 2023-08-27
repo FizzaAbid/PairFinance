@@ -114,7 +114,7 @@ def data_aggregation(deviceResults, LastExceutionTime,startCurrentHour): #aggreg
     return maxTemperatures, datapoints, distances, LastExceutionTime
 
 
-def insertAggregatedResults(max_temperatures, dataPoints, distances):
+def insert_results(max_temperatures, dataPoints, distances):
     print("dataPoints",dataPoints)
     key_device_id = "device_id"
     key_max_temperature = "max_temperature"
@@ -164,7 +164,7 @@ while(1):
     startCurrentHour = currentTime - (currentTime % 3600) #1 hour has 3600 mins
     deviceResults = psql_connection.execute(selectDevicesStmt,dict(processed_time=LastExceutionTime, hour_start=startCurrentHour))
     max_temperatures, dataPoints, distances, LastExceutionTime =data_aggregation(deviceResults, LastExceutionTime,startCurrentHour)
-    insertAggregatedResults(max_temperatures, dataPoints, distances)
+    insert_results(max_temperatures, dataPoints, distances)
     currentTime_utc = datetime.now(timezone.utc)
     next_hour = currentTime_utc.replace(hour=currentTime_utc.hour+1, minute=0, second=0, microsecond=0)
     sleep_duration = (next_hour - currentTime_utc).seconds
