@@ -36,7 +36,7 @@ while True:
         sleep(0.1)
 
 print('Connection to PostgresSQL successful.')
-LastExceutionTime = 0
+last_exceution_time = 0
 def prev_hour_from_unix_time(unix_time):
     time = datetime.fromtimestamp(unix_time)
     hour = time.strftime('%Y-%m-%d %H:00:00')
@@ -44,7 +44,7 @@ def prev_hour_from_unix_time(unix_time):
     return hourUtc
 
 # Task 1: The maximum temperatures measured for every device per hours.
-def calculate_max_temperature(LastExceutionTime,startCurrentHour): #alternative approach would be to use dictionaries
+def calculate_max_temperature(last_exceution_time,current_hour_start): #alternative approach would be to use dictionaries
     psql_metadata.reflect(bind=psql_engine, only=['devices'])
     max_temp_stmt = text(
         "SELECT distinct device_id, max(tmp) as max_temperature,"
@@ -56,13 +56,13 @@ def calculate_max_temperature(LastExceutionTime,startCurrentHour): #alternative 
         " group by devices.device_id,devices.time"
         " ORDER BY devices.time ASC)max_tmp group by 1,hourUtc"
     )
-    results = psql_connection.execute(max_temp_stmt,dict(processed_time=LastExceutionTime, hour_start=startCurrentHour))
+    results = psql_connection.execute(max_temp_stmt,dict(processed_time=last_exceution_time, hour_start=current_hour_start))
     return results
 
-def compute_datapoints(LastExceutionTime):
+def compute_data_points(last_exceution_time):
     psql_metadata.reflect(bind=psql_engine, only=['devices'])
-    dataPoints_stmt = text(
-        "SELECT  distinct device_id, count(*) as dataPoints,"
+    data_points_stmt = text(
+        "SELECT  distinct device_id, count(*) as data_points,"
         " extract(hour from utc_time) as hourUtc from ("
         "SELECT devices.device_id, count(*) as count_data_point, "
         " TO_TIMESTAMP(devices.time::numeric)::timestamp as utc_time FROM devices"
@@ -70,11 +70,11 @@ def compute_datapoints(LastExceutionTime):
         " group by devices.device_id,devices.time"
         " ORDER BY devices.time ASC)datapoint group by 1,hourUtc"
     )
-    datapoints = psql_connection.execute(dataPoints_stmt,dict(processed_time=LastExceutionTime))
-    return datapoints
+    data_points = psql_connection.execute(data_points_stmt,dict(processed_time=last_exceution_time))
+    return data_points
 
 #Total distance of device movement for every device per hours.
-def compute_distance(distances,device_id,hourUtc,location,previousLocation):
+def compute_distance(distances,device_id,hourUtc,location,previous_location):
     if device_id not in distances:
         distances[device_id] = {}
     if hourUtc not in distances[device_id]:
@@ -84,53 +84,53 @@ def compute_distance(distances,device_id,hourUtc,location,previousLocation):
     current_location_str = list(json.loads(location).values())
     current_location = (current_location_str[0], current_location_str[1])
 
-    if previousLocation:
-        distances[device_id][hourUtc] += (geopy_distance(previousLocation, current_location).km)
-    previousLocation = current_location
-    return distances,previousLocation
+    if previous_location:
+        distances[device_id][hourUtc] += (geopy_distance(previous_location, current_location).km)
+    previous_location = current_location
+    return distances,previous_location
 
-def data_aggregation(deviceResults, LastExceutionTime,startCurrentHour): #aggregate max_temp, data points, and distance
+def data_aggregation(device_results, last_exceution_time,current_hour_start): #aggregate max_temp, data points, and distance
     distances = {}
-    maxTemperatures = []
-    datapoints=[]
-    previousLocation=None
+    maximum_temp = []
+    data_points=[]
+    previous_location=None
 
-    maxTemp=calculate_max_temperature(LastExceutionTime,startCurrentHour) #Calculating max temp of each device per hour
-    datapoint=compute_datapoints(LastExceutionTime) #calculating data points of each device per hour
+    maxTemp=calculate_max_temperature(last_exceution_time,current_hour_start) #Calculating max temp of each device per hour
+    datapoint=compute_data_points(last_exceution_time) #calculating data points of each device per hour
 
     for row in maxTemp.fetchall():
-        maxTemperatures.append(row._asdict())
+        maximum_temp.append(row._asdict())
 
     for row in datapoint.fetchall():
-        datapoints.append(row._asdict())
+        data_points.append(row._asdict())
 
-    for row in deviceResults.fetchall():
+    for row in device_results.fetchall():
         device_id=row.device_id
         location=row.location
         hourUtc = prev_hour_from_unix_time(int(row.time))
-        distances,previousLocation=compute_distance(distances,device_id,hourUtc,location,previousLocation)
-        LastExceutionTime = int(row.time)
+        distances,previous_location=compute_distance(distances,device_id,hourUtc,location,previous_location)
+        last_exceution_time = int(row.time)
 
-    return maxTemperatures, datapoints, distances, LastExceutionTime
+    return maximum_temp, data_points, distances, last_exceution_time
 
 
-def insert_results(max_temperatures, dataPoints, distances):
+def insert_results(max_temperatures, data_points, distances):
     key_device_id = "device_id"
     key_max_temperature = "max_temperature"
     list_device_id = []
     list_max_temperature = []
     list_hour_utc = []
-    locationDistances=[]
+    list_location_distances=[]
     list_data_points=[]
 
     for key,value in distances.items():
         for distance in value.items():
-            locationDistances.append(distance[1])
+            list_location_distances.append(distance[1])
             list_hour_utc.append(distance[0])
 
-    for i in range(0,len(dataPoints)):
-        for key, value in dataPoints[i].items():
-            if key == 'datapoints':
+    for i in range(0,len(data_points)):
+        for key, value in data_points[i].items():
+            if key == 'data_points':
                 list_data_points.append(value)
 
 
@@ -146,25 +146,25 @@ def insert_results(max_temperatures, dataPoints, distances):
             date=list_hour_utc[i],
             max_temperature=list_max_temperature[i],
             data_points=list_data_points[i],
-            distance=locationDistances[i]
+            distance=list_location_distances[i]
         ))
     mysql_connection.commit()
 
 while(1):
     psql_metadata.reflect(bind=psql_engine, only=['devices'])
     devices = psql_metadata.tables['devices']
-    selectDevicesStmt = text("SELECT devices.device_id, devices.temperature, "
+    select_devices_stmt = text("SELECT devices.device_id, devices.temperature, "
                              "devices.location,devices.time FROM devices"
                              " WHERE CAST(devices.time AS INTEGER) > :processed_time"
                              " AND CAST(devices.time AS INTEGER) < :hour_start"
                              " ORDER BY devices.time ASC"
                              )  #fetch devices from postgres
-    currentTime = int(time())
-    startCurrentHour = currentTime - (currentTime % 3600) #1 hour has 3600 mins
-    deviceResults = psql_connection.execute(selectDevicesStmt,dict(processed_time=LastExceutionTime, hour_start=startCurrentHour))
-    max_temperatures, dataPoints, distances, LastExceutionTime =data_aggregation(deviceResults, LastExceutionTime,startCurrentHour)
-    insert_results(max_temperatures, dataPoints, distances)
-    currentTime_utc = datetime.now(timezone.utc)
-    next_hour = currentTime_utc.replace(hour=currentTime_utc.hour+1, minute=0, second=0, microsecond=0)
-    sleep_duration = (next_hour - currentTime_utc).seconds
+    current_time = int(time())
+    current_hour_start = current_time - (current_time % 3600) #1 hour has 3600 mins
+    device_results = psql_connection.execute(select_devices_stmt,dict(processed_time=last_exceution_time, hour_start=current_hour_start))
+    max_temperatures, data_points, distances, last_exceution_time =data_aggregation(device_results, last_exceution_time,current_hour_start)
+    insert_results(max_temperatures, data_points, distances)
+    current_time_utc = datetime.now(timezone.utc)
+    next_hour = current_time_utc.replace(hour=current_time_utc.hour+1, minute=0, second=0, microsecond=0)
+    sleep_duration = (next_hour - current_time_utc).seconds
     sleep(sleep_duration) #wait until next hour, comment this to reflect data in db
