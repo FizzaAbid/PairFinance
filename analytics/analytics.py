@@ -1,11 +1,11 @@
 from os import environ
 from time import time, sleep
+import json
 from sqlalchemy import Column, Integer, Float, String, create_engine, \
     insert, MetaData, text, Table, TIMESTAMP
 from sqlalchemy.exc import OperationalError
 from geopy.distance import distance as geopy_distance
 from datetime import datetime, timezone
-import json
 
 print('Waiting for the data generator...')
 sleep(3)
@@ -13,6 +13,10 @@ print('ETL Starting...')
 
 while True:
     try:
+        # environ['POSTGRESQL_CS'] = \
+        #   'postgresql+psycopg2://postgres:password@localhost:5020/main'
+        # environ['MYSQL_CS'] = \
+        #    'mysql+pymysql://nonroot:nonroot@localhost:3020/analytics?charset=utf8'
         psql_engine = create_engine(environ['POSTGRESQL_CS'],
                                     pool_pre_ping=True, pool_size=10,
                                     future=True)
@@ -59,7 +63,7 @@ def calculate_max_temperature(last_exceution_time,
     psql_metadata.reflect(bind=psql_engine, only=['devices'])
     max_temp_stmt = \
         text(
-            'SELECT distinct device_id, max(tmp) as max_temperature, extract(hour from utc_time) as hourUtc from (SELECT devices.device_id, max(devices.temperature) as tmp,  TO_TIMESTAMP(devices.time::numeric)::timestamp as utc_time FROM devices WHERE CAST(devices.time AS INTEGER) > :processed_time group by devices.device_id,devices.time ORDER BY devices.time ASC)max_tmp group by 1,hourUtc'
+            'SELECT distinct device_id, max(tmp) as max_temperature, extract(hour from utc_time) as hour_utc from (SELECT devices.device_id, max(devices.temperature) as tmp,  TO_TIMESTAMP(devices.time::numeric)::timestamp as utc_time FROM devices WHERE CAST(devices.time AS INTEGER) > :processed_time group by devices.device_id,devices.time ORDER BY devices.time ASC)max_tmp group by device_id,hour_utc'
         )
     results = psql_connection.execute(max_temp_stmt,dict(processed_time=last_exceution_time))
     return results
@@ -69,7 +73,7 @@ def compute_data_points(last_exceution_time):
     psql_metadata.reflect(bind=psql_engine, only=['devices'])
     find_datapoints_stmt = \
         text(
-            'SELECT distinct device_id, count(*) as dataPoints, extract(hour from utc_time) as hourUtc from (SELECT devices.device_id, count(*) as count_data_point,  TO_TIMESTAMP(devices.time::numeric)::timestamp as utc_time FROM devices WHERE CAST(devices.time AS INTEGER) > :processed_time group by devices.device_id,devices.time ORDER BY devices.time ASC)datapoint group by 1,hourUtc'
+            'SELECT distinct device_id, count(*) as datapoints, extract(hour from utc_time) as hour_utc from (SELECT devices.device_id, count(*) as count_data_point,  TO_TIMESTAMP(devices.time::numeric)::timestamp as utc_time FROM devices WHERE CAST(devices.time AS INTEGER) > :processed_time group by devices.device_id,devices.time ORDER BY devices.time ASC)datapoint group by device_id,hour_utc'
         )
     datapoints = psql_connection.execute(find_datapoints_stmt,dict(processed_time=last_exceution_time))
     return datapoints
@@ -110,8 +114,8 @@ def data_aggregation(device_query_results, last_exceution_time,current_start_hou
     for row in device_query_results.fetchall():
         device_id = row.device_id
         location = row.location
-        hourUtc = prev_hour_from_unix_time(int(row.time))
-        distances, prior_location= compute_distance(distances,device_id, hourUtc, location, prior_location)
+        hour_utc = prev_hour_from_unix_time(int(row.time))
+        distances, prior_location= compute_distance(distances,device_id, hour_utc, location, prior_location)
         last_exceution_time = int(row.time)
     return maximum_temp, datapoints, distances, last_exceution_time
 
@@ -151,7 +155,7 @@ def insert_results(maximum_temperatures, data_points, distances):
         mysql_connection.commit()
 
 
-while 1:
+while True:
     psql_metadata.reflect(bind=psql_engine, only=['devices'])
     devices = psql_metadata.tables['devices']
     select_devices_stmt = \
