@@ -29,4 +29,9 @@ analytics.py contains five functions, which do the following:
 
 ## Alternative Approaches
 1. Nested dictionaries can be used for calculating data points and max temperature instead of SQL
-2. Pandas or any different library, such as pyspark could have been used for Big Data Processing to run the program on multiple cores.
+2. Pandas or any different library could have been used, psycogy2 functions could have been utilized.
+
+## Future Optimization Roadmap (Customizations)
+1. Test cases can be added by using library pytest
+2. SQL based built in functions can be utilized
+3. Since the data is increasing rapidly, this can be done on pyspark to process data on multiple cores
