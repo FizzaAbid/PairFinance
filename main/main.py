@@ -10,8 +10,6 @@ from sqlalchemy import Table, Column, Integer, String, MetaData
 faker = Faker()
 while True:
     try:
-        #environ['POSTGRESQL_CS']='postgresql+psycopg2://postgres:password@localhost:5020/main'
-        #psql_engine=create_engine('postgresql+psycopg2://postgres:password@localhost:5020/main', pool_pre_ping=True, pool_size=10,future=True)
         psql_engine = create_engine(environ["POSTGRESQL_CS"], pool_pre_ping=True, pool_size=10,future=True)
         metadata_obj = MetaData()
         devices = Table(
@@ -41,7 +39,7 @@ async def store_data_point(device_id):
             )
             conn.execute(ins, data)
             conn.commit()
-            print("device_id",device_id, data['time'])
+            print(device_id, data['time'])
             await asyncio.sleep(0.1)
 
 
