@@ -19,6 +19,10 @@ analytics.py contains five functions, which do the following:
 4. data_aggregation: Main logic, which calls all three above functions and aggregate results
 5. insertAggregatedResults: inserts aggregated results into Mysql database in table analytics
 
+## Results
+<img width="1479" alt="Result_screenshot_2" src="https://github.com/FizzaAbid/PairFinance/assets/31180223/4e353eef-e99e-4531-97bf-6bf32d44194f">
+
+
 
 ## Alternative Approaches
 1. Nested dictionaries can be used for calculating data points and max temperature instead of SQL
