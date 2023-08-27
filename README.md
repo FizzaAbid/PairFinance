@@ -20,7 +20,7 @@ analytics.py contains five functions, which do the following:
 5. insert_results: inserts aggregated results into Mysql database in table analytics
 
 ## Results
-<img width="1022" alt="Result_screenshot_1" src="https://github.com/FizzaAbid/PairFinance/assets/31180223/450c7bec-898d-454c-b8c9-584b8735c827">
+<img width="1100" alt="aggregated_output_screenshot" src="https://github.com/FizzaAbid/PairFinance/assets/31180223/bde3fe02-e05b-4ce6-b7f6-4354a6c17eb5">
 
 
 
