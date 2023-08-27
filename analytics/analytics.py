@@ -22,7 +22,7 @@ while True:
         mysql_metadata = MetaData()
 
         aggregated_data = Table('aggregated_data', mysql_metadata,
-                                Column('id', Integer, primary_key=True),
+                                Column('id', Integer, primary_identifer=True),
                                 Column('device_id', String(length=50)),
                                 Column('date', TIMESTAMP),
                                 Column('max_temperature', Integer),
@@ -115,38 +115,38 @@ def data_aggregation(device_results, last_exceution_time,current_hour_start): #a
 
 
 def insert_results(max_temperatures, data_points, distances):
-    key_device_id = "device_id"
-    key_max_temperature = "max_temperature"
+    identifer_device_id = "device_id"
+    identifer_max_temperature = "max_temperature"
     list_device_id = []
     list_max_temperature = []
     list_hour_utc = []
     list_location_distances=[]
     list_data_points=[]
 
-    for key,value in distances.items():
-        for distance in value.items():
+    for identifer,record in distances.items():
+        for distance in record.items():
             list_location_distances.append(distance[1])
             list_hour_utc.append(distance[0])
 
-    for i in range(0,len(data_points)):
-        for key, value in data_points[i].items():
-            if key == 'data_points':
-                list_data_points.append(value)
+    for counter in range(0,len(data_points)):
+        for identifer, record in data_points[counter].items():
+            if identifer == 'data_points':
+                list_data_points.append(record)
 
 
-    for i in range(0,len(max_temperatures)):
-        for key, value in max_temperatures[i].items():
-            if key == key_device_id:
-                list_device_id.append(value)
-            if key == key_max_temperature:
-                list_max_temperature.append(value)
+    for counter in range(0,len(max_temperatures)):
+        for identifer, record in max_temperatures[counter].items():
+            if identifer == identifer_device_id:
+                list_device_id.append(record)
+            if identifer == identifer_max_temperature:
+                list_max_temperature.append(record)
 
         mysql_connection.execute(insert(aggregated_data).values(
-            device_id=list_device_id[i],
-            date=list_hour_utc[i],
-            max_temperature=list_max_temperature[i],
-            data_points=list_data_points[i],
-            distance=list_location_distances[i]
+            device_id=list_device_id[counter],
+            date=list_hour_utc[counter],
+            max_temperature=list_max_temperature[counter],
+            data_points=list_data_points[counter],
+            distance=list_location_distances[counter]
         ))
     mysql_connection.commit()
 
