@@ -47,7 +47,7 @@ services:
     depends_on:
       - mysql_db
       - psql_db
-      - main
+      - main #comment this for running main.py and analytics.py simultanously
     command: ["sh", "-c", "sleep 1 && python analytics.py"]
   
 
